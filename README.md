@@ -60,9 +60,3 @@ Forethought is not designed to predict the future. It is a structured way of exp
 ## A note on scope
 
 This is a portfolio-scale project, not a production planning tool — the "insights" are generated from simple rules, not real data or machine learning. The goal was to demonstrate front-end development skills, user interface design, and the implementation of interactive decision logic.
-
-
-
-
-
-**GitHub short description:** An interactive decision simulator built with HTML, CSS, and JavaScript that visualizes possible outcomes, probabilities, and future paths to help users think through complex choices.
