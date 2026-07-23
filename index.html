@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forethought — Decision Support System</title>
+  <meta name="description" content="Explore possible outcomes before making a decision. Interactive branching decision trees with time simulation." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="app">
+
+  <aside id="sidebar-left">
+    <div class="sidebar-header">
+      <h2>History</h2>
+      <span class="count-badge" id="history-count">0</span>
+    </div>
+    <div class="sidebar-content" id="history-content">
+      <p class="history-empty">No saved decisions yet.<br>Your explorations will appear here.</p>
+    </div>
+    <div class="sidebar-footer" id="history-footer" style="display:none">
+      <button class="clear-btn" id="clear-history-btn">Clear all history</button>
+    </div>
+  </aside>
+
+  <!------------------- MAIN CENTER PANEL ------------------->
+  <main id="main">
+
+    <!------------------- INPUT PANEL ------------------->
+    <section id="input-panel">
+      <div class="app-brand">
+        <!--- Brand icon (simple SVG glyph) --->
+        <div class="brand-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/>
+          </svg>
+        </div>
+        <span class="brand-name">Forethought</span>
+        <span class="brand-tagline">— Explore possible outcomes before making a decision.</span>
+      </div>
+
+      <div class="input-row">
+        <div class="input-group">
+          <textarea
+            id="decision-input"
+            placeholder="What decision are you considering?"
+            rows="2"
+            spellcheck="false"
+          ></textarea>
+          <input
+            id="context-input"
+            type="text"
+            placeholder="Add any details that may affect the outcome (optional) — e.g. budget, timeline, experience."
+          />
+        </div>
+        <button id="generate-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          Explore outcomes
+        </button>
+      </div>
+
+      <!--- Example prompts — varied domains so users see the range --->
+      <div class="examples-row">
+        <span class="examples-label">Try:</span>
+        <button class="example-chip" data-prompt="Should I go freelance or stay at my job?">Should I go freelance or stay at my job?</button>
+        <button class="example-chip" data-prompt="Move to a new city or stay where I am?">Move to a new city or stay?</button>
+        <button class="example-chip" data-prompt="Should I ask for a promotion now?">Should I ask for a promotion now?</button>
+        <button class="example-chip" data-prompt="Start the business idea or wait until I have more savings?">Start the business or wait?</button>
+        <button class="example-chip" data-prompt="Should I go back to school for a second degree?">Go back to school?</button>
+      </div>
+    </section>
+
+    <!------------------- TREE CANVAS ------------------->
+    <div id="canvas-area">
+
+      <!--- Transform wrapper that pan/zoom acts on --->
+      <div id="tree-layer">
+        <!--- SVG layer used to draw connections between decision nodes --->
+        <svg id="svg-layer" xmlns="http://www.w3.org/2000/svg"></svg>
+        <!--- Absolutely positioned node cards --->
+        <div id="nodes-layer"></div>
+      </div>
+
+      <!--- Displayed before the user creates a decision tree --->
+      <div id="empty-state">
+        <div class="empty-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <h3>Ready to explore</h3>
+        <p>Enter a decision above. Forethought will show possible short-term and long-term outcomes.</p>
+      </div>
+
+      <!--- Loading overlay while tree is being generated --->
+      <div id="loading-overlay">
+        <div class="spinner"></div>
+        <span class="loading-text">Generating possible outcomes…</span>
+      </div>
+    </div>
+
+    <!------------------- TIME SLIDER BAR ------------------->
+    <div id="slider-bar">
+      <span class="slider-label">Timeline</span>
+      <div class="slider-track-wrap">
+        <input type="range" id="time-slider" min="0" max="3" step="1" value="0" />
+        <div class="slider-stops">
+          <span class="slider-stop">1 week</span>
+          <span class="slider-stop">1 month</span>
+          <span class="slider-stop">3 months</span>
+          <span class="slider-stop">6 months</span>
+        </div>
+      </div>
+      <span class="slider-current" id="slider-current">1 week</span>
+    </div>
+
+  </main>
+
+  <!------------------- RIGHT SIDEBAR: INSIGHTS ------------------->
+  <aside id="sidebar-right">
+    <div class="insight-header">Insights</div>
+    <div class="insight-body" id="insight-body">
+      <p class="insight-empty">Explore a decision to see probability estimates and insights here.</p>
+    </div>
+  </aside>
+
+</div>
+
+<button id="toggle-sidebar-btn" title="Toggle history">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="3" y1="6" x2="21" y2="6"/>
+    <line x1="3" y1="12" x2="21" y2="12"/>
+    <line x1="3" y1="18" x2="21" y2="18"/>
+  </svg>
+</button>
+
+<script src="app.js"></script>
+
+</body>
+</html>
